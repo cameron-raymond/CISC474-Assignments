@@ -42,15 +42,13 @@ class PolicyIteration(object):
         act_reward = reward[user_act, opponent_act]
         act_probability = policy[user_act]
         # from equation 𝑝(𝑘 + 1) = 𝑝(𝑘) + 𝛼𝑟(𝑘)(1 − 𝑝(𝑘))
-        policy_delta = self.alpha*act_reward*(1-act_probability)
-        policy[user_act] += policy_delta
-        # update all other probabilities 𝑝(𝑘 + 1) = 𝑝(𝑘) − 𝛼𝑟(𝑘)*𝑝(𝑘), 𝑓𝑜𝑟 𝑎𝑙𝑙 𝑜𝑡h𝑒𝑟 𝑎𝑐𝑡𝑖𝑜𝑛𝑠 𝑜 ≠ 𝑐
-        for other_action in self.actions:
-            if other_action != user_act:
-                act_probability = policy[other_action]
-                policy_delta = self.alpha*act_reward*(act_probability)
-                policy[other_action] -= policy_delta
-        policy = self.softmax(policy)  # normalize probabilities
+        action_delta = self.alpha*act_reward*(1-act_probability)
+        # update all other probabilities 𝑝(𝑘 + 1) = 𝑝(𝑘) − 𝛼𝑟(𝑘)*𝑝(𝑘) = 𝑝(𝑘) + −1*𝛼𝑟(𝑘)*𝑝(𝑘), 𝑓𝑜𝑟 𝑎𝑙𝑙 𝑜𝑡h𝑒𝑟 𝑎𝑐𝑡𝑖𝑜𝑛𝑠 𝑜 ≠ 𝑐
+        policy_delta = -1.*self.alpha*act_reward*policy
+        # bring in the delta from the action we actually chose
+        policy_delta[user_act] = action_delta
+        policy += policy_delta
+        policy  = self.softmax(policy)  # normalize probabilities
         return policy
 
 
@@ -59,11 +57,11 @@ if __name__ == '__main__':
     p1_head_tails = np.array([[1, -1], [-1, 1]])
     p2_head_tails = -p1_head_tails
 
-    # heads_tails = PolicyIteration(p1_head_tails, p2_head_tails, alpha=0.1, k=80000,action_dict={0:"showed heads",1:"showed tails"})
+    heads_tails = PolicyIteration(p1_head_tails, p2_head_tails, alpha=0.001, k=50000,action_dict={0:"showed heads",1:"showed tails"})
 
-    p1_rps = np.array([[0,-1,1],[1,0,-1],[-1,1,0]])
-    p2_rps = -p1_rps
-    # rps = PolicyIteration(p1_rps, p2_rps, alpha=0.01, k=50000,action_dict={0:"threw rock",1:"threw paper",2:"threw scissors"})
-    p1_prisoners = np.array([[5, 10], [0, 1]])
-    p2_prisoners = np.transpose(p1_prisoners)
-    prisoners = PolicyIteration(p1_prisoners,p2_prisoners,alpha=0.01,k=50000,action_dict={0:"cooperates/lies",1:"confesses"})
+    # p1_rps = np.array([[0,-1,1],[1,0,-1],[-1,1,0]])
+    # p2_rps = -p1_rps
+    # rps = PolicyIteration(p1_rps, p2_rps, alpha=0.001, k=50000,action_dict={0:"threw rock",1:"threw paper",2:"threw scissors"})
+    # p1_prisoners = np.array([[5, 0], [10, 1]])
+    # p2_prisoners = np.transpose(p1_prisoners)
+    # prisoners = PolicyIteration(p1_prisoners,p2_prisoners,alpha=0.001,k=50000,action_dict={0:"cooperates/lies",1:"confesses"})
