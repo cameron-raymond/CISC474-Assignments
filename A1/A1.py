@@ -28,12 +28,14 @@ class PolicyIteration(object):
 
     def train(self):
         action_dict = self.action_dict
+        # Keep track of the probabilites over time to then plot
         p1_over_time = np.array([self.p1_policy])
         p2_over_time = np.array([self.p2_policy])
         for iteration in range(self.k):
             p1_action = np.random.choice(self.actions, p=self.p1_policy)
             p2_action = np.random.choice(self.actions, p=self.p2_policy)
             if self.k < 10 or iteration == 0 or (iteration+1) % (self.k//10) == 0:
+                # For some problems, it helped to normalize the probabilities every once in a while
                 if self.intermittent_normalization:
                     self.p1_policy = self.softmax(self.p1_policy)
                     self.p2_policy = self.softmax(self.p2_policy)
@@ -46,9 +48,7 @@ class PolicyIteration(object):
             self.p2_policy = self.update_policy(self.p2_policy, self.p2_reward, p1_action, p2_action)
             p1_over_time = np.vstack([p1_over_time,self.p1_policy])
             p2_over_time = np.vstack([p2_over_time,self.p2_policy])
-
         return p1_over_time, p2_over_time
-
 
     def update_policy(self, policy, reward, user_act, opponent_act):
         # reward for an action also depends on what the other user did
@@ -65,13 +65,6 @@ class PolicyIteration(object):
         if not (policy > 0).all():
             policy = self.softmax(policy)  # normalize probabilities
         return policy
-
-def normalize(x):
-    """
-        Normalizes an n dimensional vector between -1 and 1
-    """
-    x = np.asarray(x)
-    return 2*(x - x.min()) / (np.ptp(x))-1
 
 if __name__ == '__main__':
     k=50000
