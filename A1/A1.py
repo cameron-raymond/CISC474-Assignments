@@ -1,12 +1,13 @@
 import numpy as np
-from visualizations import visualize_dual_probabilities
+from visualizations import visualize_probabilities
 
 
 class PolicyIteration(object):
-    def __init__(self, p1_reward, p2_reward, alpha, k, action_dict=None):
+    def __init__(self, p1_reward, p2_reward, alpha, k, action_dict=None,intermittent_normalization=True):
         super().__init__()
         self.p1_reward = p1_reward
         self.p2_reward = p2_reward
+        self.intermittent_normalization = intermittent_normalization
         self.actions = [i for i in range(p1_reward.shape[0])]
         # Initialize random simplex for taking each action
         self.p1_policy = np.random.dirichlet(np.ones(p1_reward.shape[0]))
@@ -33,6 +34,9 @@ class PolicyIteration(object):
             p1_action = np.random.choice(self.actions, p=self.p1_policy)
             p2_action = np.random.choice(self.actions, p=self.p2_policy)
             if self.k < 10 or iteration == 0 or (iteration+1) % (self.k//10) == 0:
+                if self.intermittent_normalization:
+                    self.p1_policy = self.softmax(self.p1_policy)
+                    self.p2_policy = self.softmax(self.p2_policy)
                 print("Iteration: {}".format(iteration+1))
                 print("Player one {} and player two {}.".format(action_dict[p1_action], action_dict[p2_action]))
                 print("Player one reward: {}. Player two reward: {}".format(self.p1_reward[p1_action, p2_action], self.p2_reward[p1_action,p2_action]))
@@ -57,9 +61,9 @@ class PolicyIteration(object):
         policy_delta = -1.*self.alpha*act_reward*policy
         # bring in the delta from the action we actually chose
         policy_delta[user_act] = action_delta
-        # print(policy_delta)
         policy += policy_delta
-        policy = self.softmax(policy)  # normalize probabilities
+        if not (policy > 0).all():
+            policy = self.softmax(policy)  # normalize probabilities
         return policy
 
 def normalize(x):
@@ -70,15 +74,29 @@ def normalize(x):
     return 2*(x - x.min()) / (np.ptp(x))-1
 
 if __name__ == '__main__':
-    k=100
-    p1_head_tails = np.array([[1, -1], [-1, 1]])
-    p2_head_tails = -p1_head_tails
-    heads_tails = PolicyIteration(p1_head_tails, p2_head_tails, alpha=0.00001, k=k,action_dict={0:"showed heads",1:"showed tails"})
+    k=50000
+    # HEADS AND TAILS
+    p1_head_tails = np.array([  [1, -1], 
+                                [-1, 1]])
+    p2_head_tails = p1_head_tails*-1.
+    heads_tails = PolicyIteration(p1_head_tails, p2_head_tails, alpha=0.001, k=k,action_dict={0:"showed heads",1:"showed tails"})
     # p1_probs, p2_probs = heads_tails.train()
-    # visualize_dual_probabilities(p1_probs,p2_probs,k+2,"Dual Probability of Choosing Heads",p1_labels=["P1 Heads","P1 Tails"],p2_labels=["P2 Heads","P2 Tails"])
+    # visualize_probabilities(p1_probs,p2_probs,k+2,"Dual Probability of Choosing Heads",p1_labels=["P1 Heads","P1 Tails"],p2_labels=["P2 Heads","P2 Tails"])
    
-    p1_rps = np.array([[0, -1, 1], [1, 0, -1], [-1, 1, 0]])
+    # ROCK PAPER SCISSORS 
+    p1_rps = np.array([ [0, -1, 1], 
+                        [1, 0, -1], 
+                        [-1, 1, 0]])
     p2_rps = -p1_rps
     rps = PolicyIteration(p1_rps, p2_rps, alpha=0.001, k=k,action_dict={0:"threw rock",1:"threw paper",2:"threw scissors"})
-    p1_probs, p2_probs = rps.train()
-    visualize_dual_probabilities(p1_probs,p2_probs,k+2,"Rock Paper Scissors Probability Chart",p1_labels=["P1 Rock","P1 Paper","P1 Scissors"],p2_labels=["P2 Rock","P2 Paper","P2 Scissors"])
+    # p1_probs, p2_probs = rps.train()
+    # visualize_probabilities(p1_probs,p2_probs,k+2,"Rock Paper Scissors Probability Chart",p1_labels=["P1 Rock","P1 Paper","P1 Scissors"],p2_labels=["P2 Rock","P2 Paper","P2 Scissors"])
+
+    # PRISONERS DILEMMA 
+    p1_pris = np.array([[ 5, 0], 
+                        [10, 1]])
+    p2_pris = p1_pris.T
+    pris = PolicyIteration(p1_pris, p2_pris, alpha=0.001, k=k,action_dict={0:"coop/lie to police",1:"defect/confess to police"},intermittent_normalization=False)
+    p1_probs, p2_probs = pris.train()
+    visualize_probabilities(p1_probs,p2_probs,k+2,"Prisoners Dilemma Probability Chart",p1_labels=["P1 Cooperate","P1 Defect"],p2_labels=["P2 Cooperate","P2 Defect"])
+
