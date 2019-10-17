@@ -1,7 +1,9 @@
 import numpy as np
+from visualizations import visualize_dual_probabilities
+
 
 class PolicyIteration(object):
-    def __init__(self, p1_reward, p2_reward, alpha, k,action_dict=None):
+    def __init__(self, p1_reward, p2_reward, alpha, k, action_dict=None):
         super().__init__()
         self.p1_reward = p1_reward
         self.p2_reward = p2_reward
@@ -12,7 +14,7 @@ class PolicyIteration(object):
         self.p2_policy = np.random.dirichlet(np.ones(p1_reward.shape[0]))
         self.alpha = alpha
         self.k = k
-        self.train(action_dict)
+        self.action_dict = action_dict
 
     def softmax(self, x):
         """"
@@ -23,18 +25,25 @@ class PolicyIteration(object):
         e_x = np.exp(x - np.max(x))
         return e_x / e_x.sum(axis=0)  # only difference
 
-    def train(self,action_dict):
+    def train(self):
+        action_dict = self.action_dict
+        p1_over_time = np.array([self.p1_policy])
+        p2_over_time = np.array([self.p2_policy])
         for iteration in range(self.k):
             p1_action = np.random.choice(self.actions, p=self.p1_policy)
             p2_action = np.random.choice(self.actions, p=self.p2_policy)
-            self.p1_policy = self.update_policy(self.p1_policy, self.p1_reward, p1_action, p2_action)
-            self.p2_policy = self.update_policy(self.p2_policy, self.p2_reward, p1_action, p2_action)
-            if self.k < 10 or iteration % (self.k//10) == 0:
-                print("Iteration: {}".format(iteration))
-                print("Player one {} and player two {}. Player one reward: {}. Player two reward: {}".format(
-                    action_dict[p1_action], action_dict[p2_action], self.p1_reward[p1_action, p2_action], self.p2_reward[p2_action, p1_action]))
+            if self.k < 10 or iteration == 0 or (iteration+1) % (self.k//10) == 0:
+                print("Iteration: {}".format(iteration+1))
+                print("Player one {} and player two {}.".format(action_dict[p1_action], action_dict[p2_action]))
+                print("Player one reward: {}. Player two reward: {}".format(self.p1_reward[p1_action, p2_action], self.p2_reward[p1_action,p2_action]))
                 print("Player one policy {}".format(self.p1_policy))
                 print("Player two policy {}".format(self.p2_policy))
+            self.p1_policy = self.update_policy(self.p1_policy, self.p1_reward, p1_action, p2_action)
+            self.p2_policy = self.update_policy(self.p2_policy, self.p2_reward, p1_action, p2_action)
+            p1_over_time = np.vstack([p1_over_time,self.p1_policy])
+            p2_over_time = np.vstack([p2_over_time,self.p2_policy])
+
+        return p1_over_time, p2_over_time
 
 
     def update_policy(self, policy, reward, user_act, opponent_act):
@@ -44,24 +53,32 @@ class PolicyIteration(object):
         # from equation 𝑝(𝑘 + 1) = 𝑝(𝑘) + 𝛼𝑟(𝑘)(1 − 𝑝(𝑘))
         action_delta = self.alpha*act_reward*(1-act_probability)
         # update all other probabilities 𝑝(𝑘 + 1) = 𝑝(𝑘) − 𝛼𝑟(𝑘)*𝑝(𝑘) = 𝑝(𝑘) + −1*𝛼𝑟(𝑘)*𝑝(𝑘), 𝑓𝑜𝑟 𝑎𝑙𝑙 𝑜𝑡h𝑒𝑟 𝑎𝑐𝑡𝑖𝑜𝑛𝑠 𝑜 ≠ 𝑐
+        # this is done by multiplying the policy vector by scalars alpha, the action reward and -1
         policy_delta = -1.*self.alpha*act_reward*policy
         # bring in the delta from the action we actually chose
         policy_delta[user_act] = action_delta
+        # print(policy_delta)
         policy += policy_delta
-        policy  = self.softmax(policy)  # normalize probabilities
+        policy = self.softmax(policy)  # normalize probabilities
         return policy
 
-
+def normalize(x):
+    """
+        Normalizes an n dimensional vector between -1 and 1
+    """
+    x = np.asarray(x)
+    return 2*(x - x.min()) / (np.ptp(x))-1
 
 if __name__ == '__main__':
+    k=100
     p1_head_tails = np.array([[1, -1], [-1, 1]])
     p2_head_tails = -p1_head_tails
-
-    heads_tails = PolicyIteration(p1_head_tails, p2_head_tails, alpha=0.001, k=50000,action_dict={0:"showed heads",1:"showed tails"})
-
-    # p1_rps = np.array([[0,-1,1],[1,0,-1],[-1,1,0]])
-    # p2_rps = -p1_rps
-    # rps = PolicyIteration(p1_rps, p2_rps, alpha=0.001, k=50000,action_dict={0:"threw rock",1:"threw paper",2:"threw scissors"})
-    # p1_prisoners = np.array([[5, 0], [10, 1]])
-    # p2_prisoners = np.transpose(p1_prisoners)
-    # prisoners = PolicyIteration(p1_prisoners,p2_prisoners,alpha=0.001,k=50000,action_dict={0:"cooperates/lies",1:"confesses"})
+    heads_tails = PolicyIteration(p1_head_tails, p2_head_tails, alpha=0.00001, k=k,action_dict={0:"showed heads",1:"showed tails"})
+    # p1_probs, p2_probs = heads_tails.train()
+    # visualize_dual_probabilities(p1_probs,p2_probs,k+2,"Dual Probability of Choosing Heads",p1_labels=["P1 Heads","P1 Tails"],p2_labels=["P2 Heads","P2 Tails"])
+   
+    p1_rps = np.array([[0, -1, 1], [1, 0, -1], [-1, 1, 0]])
+    p2_rps = -p1_rps
+    rps = PolicyIteration(p1_rps, p2_rps, alpha=0.001, k=k,action_dict={0:"threw rock",1:"threw paper",2:"threw scissors"})
+    p1_probs, p2_probs = rps.train()
+    visualize_dual_probabilities(p1_probs,p2_probs,k+2,"Rock Paper Scissors Probability Chart",p1_labels=["P1 Rock","P1 Paper","P1 Scissors"],p2_labels=["P2 Rock","P2 Paper","P2 Scissors"])
