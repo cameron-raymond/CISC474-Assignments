@@ -41,7 +41,7 @@ class PolicyIteration(object):
                 print("Player one policy {}".format(self.p1_policy))
                 print("Player two policy {}".format(self.p2_policy))
                 print("Player one {} and player two {}.".format(action_dict[p1_action], action_dict[p2_action]))
-                print("Player one reward: {}. Player two reward: {}".format(self.p1_reward[p1_action, p2_action], self.p2_reward[p1_action, p2_action]))
+                print("Player one reward: {}. Player two reward: {}".format(self.p1_reward[p1_action, p2_action], self.p2_reward[p2_action, p1_action]))
             self.p1_policy, self.p1_policy_expectation = self._update_policy(self.p1_policy, self.p1_policy_expectation, self.p1_reward, p1_action, p2_action)
             self.p2_policy, self.p2_policy_expectation = self._update_policy(self.p2_policy, self.p2_policy_expectation, self.p2_reward, p2_action, p1_action)
             p1_over_time = np.vstack([p1_over_time, self.p1_policy])
@@ -75,13 +75,14 @@ class PolicyIteration(object):
 
 if __name__ == '__main__':
     k = 50000
+    alpha = 0.001
     # PRISONERS DILEMMA 
     p1_pris = np.array([[ 5, 0], 
                         [10, 1]])
     p2_pris = p1_pris
     p1_policy = np.array([0.5,0.5])
     p2_policy = np.array([0.5,0.5])
-    pris = PolicyIteration(p1_pris, p2_pris,p1_policy,p2_policy, alpha=0.001, k=k,action_dict={0:"coop/lie to police",1:"defect/confess to police"})
+    pris = PolicyIteration(p1_pris, p2_pris,p1_policy,p2_policy, alpha=alpha, k=k,action_dict={0:"coop/lie to police",1:"defect/confess to police"})
     p1_probs, p2_probs = pris.train()
     visualize_probabilities(p1_probs,p2_probs,k+2,"Prisoners Dilemma Probability Chart",p1_labels=["P1 Cooperate","P1 Defect"],p2_labels=["P2 Cooperate","P2 Defect"])
     opposing_probabilities(p1_probs[:,0],p2_probs[:,0],"Probability of Choosing Cooperating")
@@ -92,7 +93,7 @@ if __name__ == '__main__':
     p2_head_tails = p1_head_tails*-1.
     p1_policy = np.array([0.2, 0.8])
     p2_policy = np.array([0.2, 0.8])
-    heads_tails = PolicyIteration(p1_head_tails, p2_head_tails,p1_policy,p2_policy, alpha=0.001, k=k,action_dict={0:"showed heads",1:"showed tails"})
+    heads_tails = PolicyIteration(p1_head_tails, p2_head_tails,p1_policy,p2_policy, alpha=alpha, k=k,action_dict={0:"showed heads",1:"showed tails"})
     p1_probs, p2_probs = heads_tails.train()
     visualize_probabilities(p1_probs,p2_probs,k+2,"Dual Probability of Choosing Heads",p1_labels=["P1 Heads","P1 Tails"],p2_labels=["P2 Heads","P2 Tails"])
     opposing_probabilities(p1_probs[:,0],p2_probs[:,0],"Probability of Choosing Heads")
@@ -104,8 +105,8 @@ if __name__ == '__main__':
     p2_rps    = p1_rps
     p1_policy = np.array([0.6, 0.2, 0.2])
     p2_policy = np.array([0.6, 0.2, 0.2])
-    rps       = PolicyIteration(p1_rps, p2_rps, p1_policy, p2_policy, alpha=0.001, k=k, action_dict={0: "threw rock", 1: "threw paper", 2: "threw scissors"}, second_algo_enable=False)
+    rps       = PolicyIteration(p1_rps, p2_rps, p1_policy, p2_policy, alpha=alpha, k=k, action_dict={0: "threw rock", 1: "threw paper", 2: "threw scissors"}, second_algo_enable=False)
     p1_probs, p2_probs = rps.train()
-    # visualize_probabilities(p1_probs,p2_probs,k+2,"Rock Paper Scissors Probability Chart",p1_labels=["P1 Rock","P1 Paper","P1 Scissors"],p2_labels=["P2 Rock","P2 Paper","P2 Scissors"])
+    visualize_probabilities(p1_probs,p2_probs,k+2,"Rock Paper Scissors Probability Chart",p1_labels=["P1 Rock","P1 Paper","P1 Scissors"],p2_labels=["P2 Rock","P2 Paper","P2 Scissors"])
     opposing_probabilities(p1_probs[:,0],p2_probs[:,0],"Probability of Choosing Rock")
     opposing_probabilities(p1_probs[:,1],p2_probs[:,1],"Probability of Choosing Paper")
