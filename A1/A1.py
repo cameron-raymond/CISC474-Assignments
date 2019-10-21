@@ -43,7 +43,7 @@ class PolicyIteration(object):
                 print("Player one {} and player two {}.".format(action_dict[p1_action], action_dict[p2_action]))
                 print("Player one reward: {}. Player two reward: {}".format(self.p1_reward[p1_action, p2_action], self.p2_reward[p1_action, p2_action]))
             self.p1_policy, self.p1_policy_expectation = self._update_policy(self.p1_policy, self.p1_policy_expectation, self.p1_reward, p1_action, p2_action)
-            self.p2_policy, self.p2_policy_expectation = self._update_policy(self.p2_policy, self.p2_policy_expectation, self.p2_reward, p2_action, p1_action,v=False)
+            self.p2_policy, self.p2_policy_expectation = self._update_policy(self.p2_policy, self.p2_policy_expectation, self.p2_reward, p2_action, p1_action)
             p1_over_time = np.vstack([p1_over_time, self.p1_policy])
             p2_over_time = np.vstack([p2_over_time, self.p2_policy])
         # Calculate value of game: P1*R1*P2^T
@@ -51,7 +51,7 @@ class PolicyIteration(object):
         print("Game value: {}".format(game_value))
         return p1_over_time, p2_over_time
 
-    def _update_policy(self, policy, policy_expectation, reward_mat, user_act, opponent_act,v=False):
+    def _update_policy(self, policy, policy_expectation, reward_mat, user_act, opponent_act):
         # reward for an action also depends on what the other user did
         reward = reward_mat[user_act, opponent_act]
         action_probability = policy[user_act]
