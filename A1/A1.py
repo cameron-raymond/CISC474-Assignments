@@ -1,8 +1,6 @@
 import numpy as np
 from numpy.core.multiarray import ndarray
-
 from visualizations import visualize_probabilities, opposing_probabilities
-
 
 class PolicyIteration(object):
     def __init__(self, p1_reward, p2_reward, p1_policy, p2_policy, alpha, k, action_dict=None, second_algo_enable=False):
@@ -52,6 +50,19 @@ class PolicyIteration(object):
         return p1_over_time, p2_over_time
 
     def _update_policy(self, policy, policy_expectation, reward_mat, user_act, opponent_act):
+        """
+            Updates a generic user's policy based on their own reward matrix, action, and the action of an opponent.
+            ...
+            Parameters
+            ----------
+            :param policy:              An array of size m where element i is the probability of choosing action i.
+            :param policy_expectation:  The expected value of a policy
+            :param reward_mat:          The reward matrix (dimension mxn) from the perspective of the user. IE the row val is the action taken by the 
+                                        user whose policy we're updating, and the column val is the opponent's action. 
+            :param user_act:            The action - i, 0<=i<=m - taken by the user.
+            :param opponent_act:        The action - i, 0<=i<=n - taken by the opponent.
+            :return: A tuple with the new policy and policy expectation for the user 
+        """
         # reward for an action also depends on what the other user did
         reward = reward_mat[user_act, opponent_act]
         action_probability = policy[user_act]
