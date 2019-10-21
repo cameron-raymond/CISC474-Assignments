@@ -31,7 +31,7 @@ def opposing_probabilities(p1,p2,title):
     axes = plt.gca()
     axes.set_xlim([0,1])
     axes.set_ylim([0,1])
-    area = np.pi*2
+    area = 0.5
     plt.scatter(p1, p2, s=area, c=colors, alpha=0.5)
     plt.title(title)
     plt.xlabel('Player One')
