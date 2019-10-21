@@ -18,3 +18,22 @@ def visualize_probabilities(p1, p2, domain, title, ylabel="Probability", p1_labe
     plt.ylabel(ylabel)
     plt.title(title)
     plt.show()
+
+
+def opposing_probabilities(p1,p2,title):
+    """
+        This is meant to plot two probabilities in relation to one another.
+        x axis - probability of A happening for player one
+        y axis - probability of A happening for player two
+
+    """
+    colors = (0,0,0)
+    axes = plt.gca()
+    axes.set_xlim([0,1])
+    axes.set_ylim([0,1])
+    area = np.pi*2
+    plt.scatter(p1, p2, s=area, c=colors, alpha=0.5)
+    plt.title(title)
+    plt.xlabel('Player One')
+    plt.ylabel('Player Two')
+    plt.show()
