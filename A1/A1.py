@@ -41,14 +41,20 @@ class PolicyIteration(object):
                 print("Player one policy {}".format(self.p1_policy))
                 print("Player two policy {}".format(self.p2_policy))
                 print("Player one {} and player two {}.".format(action_dict[p1_action], action_dict[p2_action]))
-                print("Player one reward: {}. Player two reward: {}".format(self.p1_reward[p1_action, p2_action], self.p2_reward[p2_action, p1_action]))
-            self.p1_policy, self.p1_policy_expectation = self._update_policy(self.p1_policy, self.p1_policy_expectation, self.p1_reward, p1_action, p2_action)
-            self.p2_policy, self.p2_policy_expectation = self._update_policy(self.p2_policy, self.p2_policy_expectation, self.p2_reward, p2_action, p1_action)
+                print("Player one reward: {}. Player two reward: {}".format(self.p1_reward[p1_action, p2_action],
+                                                                            self.p2_reward[p2_action, p1_action]))
+            self.p1_policy, self.p1_policy_expectation = self._update_policy(self.p1_policy, self.p1_policy_expectation,
+                                                                             self.p1_reward, p1_action, p2_action)
+            self.p2_policy, self.p2_policy_expectation = self._update_policy(self.p2_policy, self.p2_policy_expectation,
+                                                                             self.p2_reward, p2_action, p1_action)
             p1_over_time = np.vstack([p1_over_time, self.p1_policy])
             p2_over_time = np.vstack([p2_over_time, self.p2_policy])
-        # Calculate value of game: P1*R1*P2^T
-        game_value = self.p1_policy.dot(self.p1_reward.dot(self.p2_policy.T))
-        print("Game value: {}".format(game_value))
+        # Calculate value of game for player 1: P1*R1*P2^T
+        p1_game_value = self.p1_policy.dot(self.p1_reward.dot(self.p2_policy.T))
+        # Calculate value of game for player 2: P2*R2*P1^T
+        p2_game_value = self.p2_policy.dot(self.p2_reward.dot(self.p1_policy.T))
+        print("Game value for player 1: {}".format(p1_game_value))
+        print("Game value for player 2: {}".format(p2_game_value))
         return p1_over_time, p2_over_time
 
     def _update_policy(self, policy, policy_expectation, reward_mat, user_act, opponent_act):
@@ -57,7 +63,11 @@ class PolicyIteration(object):
         action_probability = policy[user_act]
         # from equation 𝑝(𝑘 + 1) = 𝑝(𝑘) + 𝛼𝑟(𝑘)(1 − 𝑝(𝑘))
         new_action_probability = action_probability + (self.alpha*reward*(1-action_probability))
-        assert (reward < 0 and (new_action_probability-action_probability) <= 0) or (reward > 0 and (new_action_probability-action_probability) >= 0) or (reward == 0 and new_action_probability == action_probability), "ACTION: {}, OPP ACTION: {}, REWARD: {}, OLD PROB {:.4f}, NEW PROB: {:.4f} ".format(self.action_dict[user_act], self.action_dict[opponent_act], reward, action_probability, new_action_probability)
+        assert (reward < 0 and (new_action_probability-action_probability) <= 0) or \
+               (reward > 0 and (new_action_probability-action_probability) >= 0) or \
+               (reward == 0 and new_action_probability == action_probability),\
+            "ACTION: {}, OPP ACTION: {}, REWARD: {}, OLD PROB {:.4f}, NEW PROB: {:.4f} "\
+                .format(self.action_dict[user_act], self.action_dict[opponent_act], reward, action_probability, new_action_probability)
         # update all other probabilities 𝑝(𝑘 + 1) = 𝑝(𝑘) − 𝛼𝑟(𝑘)*𝑝(𝑘) = 𝑝(𝑘) + −1*𝛼𝑟(𝑘)*𝑝(𝑘), 𝑓𝑜𝑟 𝑎𝑙𝑙 𝑜𝑡h𝑒𝑟 𝑎𝑐𝑡𝑖𝑜𝑛𝑠 𝑜 ≠ 𝑐
         # this is done by multiplying the policy vector by scalars alpha, the action reward and -1
         policy = policy-(self.alpha*reward*policy)
@@ -67,7 +77,7 @@ class PolicyIteration(object):
             # Calculate the expectation of the policy probabilities
             policy_expectation_delta = self.alpha*(policy - policy_expectation)
             policy_expectation += policy_expectation_delta
-            # Using the expectation, calculate the second term of α*E[p(k)] − p(k), and add it to policy_delta
+            # Using the expectation, calculate the second term of the algorithm: α*E[p(k)] − p(k), and add it to policy_delta
             policy += self.alpha*(policy_expectation - policy)
         if not (policy > 0).all():
             policy = self.softmax(policy)  # normalize probabilities
@@ -82,9 +92,12 @@ if __name__ == '__main__':
     p2_pris = p1_pris
     p1_policy = np.array([0.5,0.5])
     p2_policy = np.array([0.5,0.5])
-    pris = PolicyIteration(p1_pris, p2_pris,p1_policy,p2_policy, alpha=alpha, k=k,action_dict={0:"coop/lie to police",1:"defect/confess to police"})
+    pris = PolicyIteration(p1_pris, p2_pris,p1_policy,p2_policy, alpha=alpha, k=k,
+                           action_dict={0:"coop/lie to police",1:"defect/confess to police"},
+                           second_algo_enable=False)
     p1_probs, p2_probs = pris.train()
-    visualize_probabilities(p1_probs,p2_probs,k+2,"Prisoners Dilemma Probability Chart",p1_labels=["P1 Cooperate","P1 Defect"],p2_labels=["P2 Cooperate","P2 Defect"])
+    visualize_probabilities(p1_probs,p2_probs,k+2,"Prisoners Dilemma Probability Chart",
+                            p1_labels=["P1 Cooperate","P1 Defect"],p2_labels=["P2 Cooperate","P2 Defect"])
     opposing_probabilities(p1_probs[:,0],p2_probs[:,0],"Probability of Choosing Cooperating")
     
     # HEADS AND TAILS
@@ -93,9 +106,12 @@ if __name__ == '__main__':
     p2_head_tails = p1_head_tails*-1.
     p1_policy = np.array([0.2, 0.8])
     p2_policy = np.array([0.2, 0.8])
-    heads_tails = PolicyIteration(p1_head_tails, p2_head_tails,p1_policy,p2_policy, alpha=alpha, k=k,action_dict={0:"showed heads",1:"showed tails"})
+    heads_tails = PolicyIteration(p1_head_tails, p2_head_tails,p1_policy,p2_policy, alpha=alpha,k=k,
+                                  action_dict={0:"showed heads",1:"showed tails"},
+                                  second_algo_enable=False)
     p1_probs, p2_probs = heads_tails.train()
-    visualize_probabilities(p1_probs,p2_probs,k+2,"Dual Probability of Choosing Heads",p1_labels=["P1 Heads","P1 Tails"],p2_labels=["P2 Heads","P2 Tails"])
+    visualize_probabilities(p1_probs,p2_probs,k+2,"Dual Probability of Choosing Heads",
+                            p1_labels=["P1 Heads","P1 Tails"],p2_labels=["P2 Heads","P2 Tails"])
     opposing_probabilities(p1_probs[:,0],p2_probs[:,0],"Probability of Choosing Heads")
 
     # ROCK PAPER SCISSORS
@@ -105,8 +121,11 @@ if __name__ == '__main__':
     p2_rps    = p1_rps
     p1_policy = np.array([0.6, 0.2, 0.2])
     p2_policy = np.array([0.6, 0.2, 0.2])
-    rps       = PolicyIteration(p1_rps, p2_rps, p1_policy, p2_policy, alpha=alpha, k=k, action_dict={0: "threw rock", 1: "threw paper", 2: "threw scissors"}, second_algo_enable=False)
+    rps       = PolicyIteration(p1_rps, p2_rps, p1_policy, p2_policy, alpha=alpha, k=k,
+                                action_dict={0: "threw rock", 1: "threw paper", 2: "threw scissors"},
+                                second_algo_enable=False)
     p1_probs, p2_probs = rps.train()
-    visualize_probabilities(p1_probs,p2_probs,k+2,"Rock Paper Scissors Probability Chart",p1_labels=["P1 Rock","P1 Paper","P1 Scissors"],p2_labels=["P2 Rock","P2 Paper","P2 Scissors"])
+    visualize_probabilities(p1_probs,p2_probs,k+2,"Rock Paper Scissors Probability Chart",
+                            p1_labels=["P1 Rock","P1 Paper","P1 Scissors"],p2_labels=["P2 Rock","P2 Paper","P2 Scissors"])
     opposing_probabilities(p1_probs[:,0],p2_probs[:,0],"Probability of Choosing Rock")
     opposing_probabilities(p1_probs[:,1],p2_probs[:,1],"Probability of Choosing Paper")
