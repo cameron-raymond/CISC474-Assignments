@@ -3,6 +3,16 @@ import numpy as np
 from lib.envs.windy_gridworld import WindyGridworldEnv
 from collections import defaultdict
 
+def epsilon_greedy_policy(Q, state, nA, epsilon):
+    '''
+    Returns greedy policy with epsilon chance of a random action
+    '''
+    probs = np.ones(nA) * epsilon / nA
+    best_action = np.argmax(Q[state])
+    probs[best_action] += 1.0 - epsilon
+
+    return probs
+
 def Q_learning(episodes, learning_rate, discount, epsilon):
     '''
     Learn to solve the environment using Q-learning
