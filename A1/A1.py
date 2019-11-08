@@ -94,7 +94,7 @@ if __name__ == '__main__':
     p2_policy = np.array([0.5,0.5])
     pris = PolicyIteration(p1_pris, p2_pris,p1_policy,p2_policy, alpha=alpha, k=k,
                            action_dict={0:"coop/lie to police",1:"defect/confess to police"},
-                           second_algo_enable=False)
+                           second_algo_enable=True)
     p1_probs, p2_probs = pris.train()
     visualize_probabilities(p1_probs,p2_probs,k+2,"Prisoners Dilemma Probability Chart",
                             p1_labels=["P1 Cooperate","P1 Defect"],p2_labels=["P2 Cooperate","P2 Defect"])
@@ -108,7 +108,7 @@ if __name__ == '__main__':
     p2_policy = np.array([0.2, 0.8])
     heads_tails = PolicyIteration(p1_head_tails, p2_head_tails,p1_policy,p2_policy, alpha=alpha,k=k,
                                   action_dict={0:"showed heads",1:"showed tails"},
-                                  second_algo_enable=False)
+                                  second_algo_enable=True)
     p1_probs, p2_probs = heads_tails.train()
     visualize_probabilities(p1_probs,p2_probs,k+2,"Dual Probability of Choosing Heads",
                             p1_labels=["P1 Heads","P1 Tails"],p2_labels=["P2 Heads","P2 Tails"])
@@ -123,7 +123,7 @@ if __name__ == '__main__':
     p2_policy = np.array([0.6, 0.2, 0.2])
     rps       = PolicyIteration(p1_rps, p2_rps, p1_policy, p2_policy, alpha=alpha, k=k,
                                 action_dict={0: "threw rock", 1: "threw paper", 2: "threw scissors"},
-                                second_algo_enable=False)
+                                second_algo_enable=True)
     p1_probs, p2_probs = rps.train()
     visualize_probabilities(p1_probs,p2_probs,k+2,"Rock Paper Scissors Probability Chart",
                             p1_labels=["P1 Rock","P1 Paper","P1 Scissors"],p2_labels=["P2 Rock","P2 Paper","P2 Scissors"])
