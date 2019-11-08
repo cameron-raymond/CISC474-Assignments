@@ -1,3 +1,8 @@
+import matplotlib.pyplot as plt
+import numpy as np
+from lib.envs.windy_gridworld import WindyGridworldEnv
+from collections import defaultdict
+
 def Q_learning(episodes, learning_rate, discount, epsilon):
     '''
     Learn to solve the environment using Q-learning
@@ -38,3 +43,25 @@ def Q_learning(episodes, learning_rate, discount, epsilon):
             state = next_state
 
     return x, y
+
+
+# Define environment and learning params 
+env = WindyGridworldEnv()
+episodes = 100
+learning_rate = 0.5
+discount = 0.9
+epsilon = 0.05
+_lambda = 0.9
+
+# Learn
+x, y = Q_learning(episodes, learning_rate, discount, epsilon)
+
+# Show results
+_, ax = plt.subplots()
+ax.plot(x, y)
+
+ax.set(xlabel='Episodes', ylabel='steps',
+       title='Episodes vs steps')
+ax.grid()
+
+plt.show()
