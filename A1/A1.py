@@ -1,6 +1,5 @@
 import numpy as np
-from numpy.core.multiarray import ndarray
-from visualizations import visualize_probabilities, opposing_probabilities
+# from visualizations import visualize_probabilities, opposing_probabilities
 
 class PolicyIteration(object):
     def __init__(self, p1_reward, p2_reward, p1_policy, p2_policy, alpha, k, action_dict=None, second_algo_enable=False):
@@ -18,13 +17,13 @@ class PolicyIteration(object):
         self.second_algo_enable     = second_algo_enable
 
     def softmax(self, x):
-        """"
+        """
             Takes an n dimensional vector of real numbers, and normalizes it into a probability distribution 
             consisting of n probabilities proportional to the exponentials of the input numbers.
-            https://en.wikipedia.org/wiki/Softmax_function
+                https://en.wikipedia.org/wiki/Softmax_function
         """
         e_x = np.exp(x - np.max(x))
-        return e_x / e_x.sum(axis=0)  # only difference
+        return e_x / e_x.sum(axis=0)
 
     def train(self):
         action_dict = self.action_dict
@@ -55,13 +54,18 @@ class PolicyIteration(object):
             ...
             Parameters
             ----------
-            :param policy:              An array of size m where element i is the probability of choosing action i.
-            :param policy_expectation:  The expected value of a policy
-            :param reward_mat:          The reward matrix (dimension mxn) from the perspective of the user. IE the row val is the action taken by the 
-                                        user whose policy we're updating, and the column val is the opponent's action. 
-            :param user_act:            The action - i, 0<=i<=m - taken by the user.
-            :param opponent_act:        The action - i, 0<=i<=n - taken by the opponent.
-            :return: A tuple with the new policy and policy expectation for the user 
+            :param policy:              
+                An array of size m where element i is the probability of choosing action i.
+            :param policy_expectation:  
+                The expected value of a policy
+            :param reward_mat:          
+                The reward matrix (dimension mxn) from the perspective of the user. IE the row val is the action taken by the user whose policy we're updating, and the column val is the opponent's action. 
+            :param user_act:            
+                The action - i, 0<=i<=m - taken by the user.
+            :param opponent_act:        
+                The action - i, 0<=i<=n - taken by the opponent.
+            :return: 
+                A tuple with the new policy and policy expectation for the user 
         """
         # reward for an action also depends on what the other user did
         reward = reward_mat[user_act, opponent_act]
@@ -83,6 +87,7 @@ class PolicyIteration(object):
         if not (policy > 0).all():
             policy = self.softmax(policy)  # normalize probabilities
         return policy, policy_expectation
+        
 
 if __name__ == '__main__':
     k = 50000
@@ -95,8 +100,8 @@ if __name__ == '__main__':
     p2_policy = np.array([0.5,0.5])
     pris = PolicyIteration(p1_pris, p2_pris,p1_policy,p2_policy, alpha=alpha, k=k,action_dict={0:"coop/lie to police",1:"defect/confess to police"})
     p1_probs, p2_probs = pris.train()
-    visualize_probabilities(p1_probs,p2_probs,k+2,"Prisoners Dilemma Probability Chart",p1_labels=["P1 Cooperate","P1 Defect"],p2_labels=["P2 Cooperate","P2 Defect"])
-    opposing_probabilities(p1_probs[:,0],p2_probs[:,0],"Probability of Choosing Cooperating")
+    # visualize_probabilities(p1_probs,p2_probs,k+2,"Prisoners Dilemma Probability Chart",p1_labels=["P1 Cooperate","P1 Defect"],p2_labels=["P2 Cooperate","P2 Defect"])
+    # opposing_probabilities(p1_probs[:,0],p2_probs[:,0],"Probability of Choosing Cooperating")
     
     # HEADS AND TAILS
     p1_head_tails = np.array([[1, -1],
@@ -106,8 +111,8 @@ if __name__ == '__main__':
     p2_policy = np.array([0.2, 0.8])
     heads_tails = PolicyIteration(p1_head_tails, p2_head_tails,p1_policy,p2_policy, alpha=alpha, k=k,action_dict={0:"showed heads",1:"showed tails"})
     p1_probs, p2_probs = heads_tails.train()
-    visualize_probabilities(p1_probs,p2_probs,k+2,"Dual Probability of Choosing Heads",p1_labels=["P1 Heads","P1 Tails"],p2_labels=["P2 Heads","P2 Tails"])
-    opposing_probabilities(p1_probs[:,0],p2_probs[:,0],"Probability of Choosing Heads")
+    # visualize_probabilities(p1_probs,p2_probs,k+2,"Dual Probability of Choosing Heads",p1_labels=["P1 Heads","P1 Tails"],p2_labels=["P2 Heads","P2 Tails"])
+    # opposing_probabilities(p1_probs[:,0],p2_probs[:,0],"Probability of Choosing Heads")
 
     # ROCK PAPER SCISSORS
     p1_rps    = np.array([[ 0,-1, 1],
@@ -118,6 +123,6 @@ if __name__ == '__main__':
     p2_policy = np.array([0.6, 0.2, 0.2])
     rps       = PolicyIteration(p1_rps, p2_rps, p1_policy, p2_policy, alpha=alpha, k=k, action_dict={0: "threw rock", 1: "threw paper", 2: "threw scissors"}, second_algo_enable=False)
     p1_probs, p2_probs = rps.train()
-    visualize_probabilities(p1_probs,p2_probs,k+2,"Rock Paper Scissors Probability Chart",p1_labels=["P1 Rock","P1 Paper","P1 Scissors"],p2_labels=["P2 Rock","P2 Paper","P2 Scissors"])
-    opposing_probabilities(p1_probs[:,0],p2_probs[:,0],"Probability of Choosing Rock")
-    opposing_probabilities(p1_probs[:,1],p2_probs[:,1],"Probability of Choosing Paper")
+    # visualize_probabilities(p1_probs,p2_probs,k+2,"Rock Paper Scissors Probability Chart",p1_labels=["P1 Rock","P1 Paper","P1 Scissors"],p2_labels=["P2 Rock","P2 Paper","P2 Scissors"])
+    # opposing_probabilities(p1_probs[:,0],p2_probs[:,0],"Probability of Choosing Rock")
+    # opposing_probabilities(p1_probs[:,1],p2_probs[:,1],"Probability of Choosing Paper")
