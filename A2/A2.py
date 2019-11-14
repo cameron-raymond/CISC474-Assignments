@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
-from lib.envs.windy_gridworld import WindyGridworldEnv
+from grid_world import WindyGridworldEnv
 from collections import defaultdict
 
 def epsilon_greedy_policy(Q, state, nA, epsilon):
