@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
-from grid_world import WindyGridworldEnv
+from grid_world import WindyGridWorld
 from collections import defaultdict
 
 def epsilon_greedy_policy(Q, state, nA, epsilon):
@@ -13,7 +13,7 @@ def epsilon_greedy_policy(Q, state, nA, epsilon):
 
     return probs
 
-def Q_learning(episodes, learning_rate, discount, epsilon):
+def Q_learning(episodes, lr, discount, epsilon):
     '''
     Learn to solve the environment using Q-learning
 
@@ -56,7 +56,7 @@ def Q_learning(episodes, learning_rate, discount, epsilon):
 
 
 # Define environment and learning params 
-env = WindyGridworldEnv()
+env = WindyGridWorld()
 episodes = 100
 learning_rate = 0.5
 discount = 0.9

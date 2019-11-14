@@ -112,14 +112,8 @@ if __name__ == '__main__':
                            action_dict={0:"coop/lie to police",1:"defect/confess to police"},
                            second_algo_enable=True)
     p1_probs, p2_probs = pris.train()
-<<<<<<< HEAD
     # visualize_probabilities(p1_probs,p2_probs,k+2,"Prisoners Dilemma Probability Chart",p1_labels=["P1 Cooperate","P1 Defect"],p2_labels=["P2 Cooperate","P2 Defect"])
     # opposing_probabilities(p1_probs[:,0],p2_probs[:,0],"Probability of Choosing Cooperating")
-=======
-    visualize_probabilities(p1_probs,p2_probs,k+2,"Prisoners Dilemma Probability Chart",
-                            p1_labels=["P1 Cooperate","P1 Defect"],p2_labels=["P2 Cooperate","P2 Defect"])
-    opposing_probabilities(p1_probs[:,0],p2_probs[:,0],"Probability of Choosing Cooperating")
->>>>>>> dfb383c7b82615224e46515dc311384b612fd240
     
     # HEADS AND TAILS
     p1_head_tails = np.array([[1, -1],
@@ -131,14 +125,8 @@ if __name__ == '__main__':
                                   action_dict={0:"showed heads",1:"showed tails"},
                                   second_algo_enable=True)
     p1_probs, p2_probs = heads_tails.train()
-<<<<<<< HEAD
     # visualize_probabilities(p1_probs,p2_probs,k+2,"Dual Probability of Choosing Heads",p1_labels=["P1 Heads","P1 Tails"],p2_labels=["P2 Heads","P2 Tails"])
     # opposing_probabilities(p1_probs[:,0],p2_probs[:,0],"Probability of Choosing Heads")
-=======
-    visualize_probabilities(p1_probs,p2_probs,k+2,"Dual Probability of Choosing Heads",
-                            p1_labels=["P1 Heads","P1 Tails"],p2_labels=["P2 Heads","P2 Tails"])
-    opposing_probabilities(p1_probs[:,0],p2_probs[:,0],"Probability of Choosing Heads")
->>>>>>> dfb383c7b82615224e46515dc311384b612fd240
 
     # ROCK PAPER SCISSORS
     p1_rps    = np.array([[ 0,-1, 1],
@@ -151,13 +139,6 @@ if __name__ == '__main__':
                                 action_dict={0: "threw rock", 1: "threw paper", 2: "threw scissors"},
                                 second_algo_enable=True)
     p1_probs, p2_probs = rps.train()
-<<<<<<< HEAD
     # visualize_probabilities(p1_probs,p2_probs,k+2,"Rock Paper Scissors Probability Chart",p1_labels=["P1 Rock","P1 Paper","P1 Scissors"],p2_labels=["P2 Rock","P2 Paper","P2 Scissors"])
     # opposing_probabilities(p1_probs[:,0],p2_probs[:,0],"Probability of Choosing Rock")
     # opposing_probabilities(p1_probs[:,1],p2_probs[:,1],"Probability of Choosing Paper")
-=======
-    visualize_probabilities(p1_probs,p2_probs,k+2,"Rock Paper Scissors Probability Chart",
-                            p1_labels=["P1 Rock","P1 Paper","P1 Scissors"],p2_labels=["P2 Rock","P2 Paper","P2 Scissors"])
-    opposing_probabilities(p1_probs[:,0],p2_probs[:,0],"Probability of Choosing Rock")
-    opposing_probabilities(p1_probs[:,1],p2_probs[:,1],"Probability of Choosing Paper")
->>>>>>> dfb383c7b82615224e46515dc311384b612fd240

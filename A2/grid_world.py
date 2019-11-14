@@ -1,31 +1,30 @@
+
+
 UP = 0
-LEFT = 1
+RIGHT = 1
 DOWN = 2
-RIGHT = 3
+LEFT = 3
 
 class WindyGridWorld(object):
     """Create an environment of a Grid World
     R = dict {(s):reward} - reward matrix, reward which obtained on state s
     """
 
-    def __init__(self, shape=(7, 10),  start=(3, 0), terminate=(3, 7),
+    def __init__(self, shape=(7, 10),  start=(3, 0), terminal=(3, 7),
                     wind=[0, 0, 0, 1, 1, 1, 2, 2, 1, 0]):
         self.shape = shape
         self.R = {}
-        self.terminate = terminate
-        self.start = start
-        self.now = start
+        self.terminal = terminal
+        self.state = start
         self.wind = wind
 
-        for i in xrange(self.shape[0]):
-            for j in xrange(self.shape[1]):
-                self.R[(i, j)] = 0 if (i, j)==self.terminate else -1.0
-                       
-    def state(self):
-        return self.now
+        for i in range(self.shape[0]):
+            for j in range(self.shape[1]):
+                self.R[(i, j)] = 0 if (i, j)==self.terminal else -1.0
     
     def reset(self):
-        self.now = (3, 0)
+        self.state = (3, 0)
+        return self.state
 
     def act(self, action):
         if action==UP:
@@ -36,17 +35,17 @@ class WindyGridWorld(object):
             self.act_left()
         if action==DOWN:
             self.act_down()
-        self.act_up(step=self.wind[self.now[1]])
-        return (self.state(), self.state()==self.terminate, self.R[self.state()])
+        self.act_up(step=self.wind[self.state[1]])
+        return (self.state, self.state==self.terminal, self.R[self.state])
 
     def act_up(self, step=1):
-        self.now = (max(self.now[0]-step, 0), self.now[1])
+        self.state = (max(self.state[0]-step, 0), self.state[1])
 
     def act_down(self, step=1):
-        self.now = (min(self.now[0]+step, self.shape[0]-1), self.now[1])
+        self.state = (min(self.state[0]+step, self.shape[0]-1), self.state[1])
 
     def act_right(self, step=1):
-        self.now = (self.now[0], min(self.now[1]+step, self.shape[1]-1))
+        self.state = (self.state[0], min(self.state[1]+step, self.shape[1]-1))
 
     def act_left(self, step=1):
-        self.now = (self.now[0], max(self.now[1]-step, 0))
+        self.state = (self.state[0], max(self.state[1]-step, 0))
