@@ -16,7 +16,7 @@ class WindyGridWorld(object):
         self.R = {}
         self.terminal = terminal
         self.state = start
-        self.wind = wind
+        self.wind = [0, 0, 0, 0,0,0,0,0,0, 0]
 
         for i in range(self.shape[0]):
             for j in range(self.shape[1]):

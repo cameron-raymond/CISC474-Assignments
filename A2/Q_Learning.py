@@ -3,7 +3,7 @@ import math
 from grid_world import WindyGridWorld as env
 
 class Q_Learning():
-    def __init__(self, episodes=10, lr=0.9, discount=0.9, epsilon=0.1, states=70, actions=4):
+    def __init__(self, episodes=100, lr=0.9, discount=0.9, epsilon=0.1, states=70, actions=4):
         self.episodes       = episodes
         self.learning_rate  = lr
         self.discount       = discount
@@ -19,9 +19,13 @@ class Q_Learning():
             Returns a policy pi where pi(argmax,state) = 1-epsilon 
             and pi(otheAction,state) = epsilon/|num_possible|
         """
-        num_possible = len(self.actions)
-        policy = np.ones(num_possible) * (self.epsilon / num_possible)
         q_index = self.__state_to_q_ind(state)
+        num_possible = len(self.actions)
+        if np.all(np.isclose(self.q_table[q_index], self.q_table[q_index][0])):
+            # If all the elements are equal, random walk
+            return np.ones(num_possible) / num_possible
+
+        policy = np.ones(num_possible) * (self.epsilon / num_possible)
         best_action = np.argmax(self.q_table[q_index])
         policy[best_action] += 1.0 - self.epsilon
 
@@ -50,7 +54,6 @@ class Q_Learning():
         for episode in range(self.episodes):
             S = self.env.reset() # init S
             done = False
-            print("Starting epsiode {}".format(episode+1))
             episode_value = 0
             while not done:
                 policy = self.eps_greedy_policy(S)
@@ -60,14 +63,17 @@ class Q_Learning():
                     p=self.eps_greedy_policy(S)
                 )
                 S_, done, R = self.env.act(action)
-                episode_value = episode_value*self.discount + R
+                assert(R != 0 or S_ == self.env.terminal)
+                episode_value += episode_value*self.discount + R
                 q_index = self.__state_to_q_ind(S)
                 # Update Q table
-                
                 greedy_next = np.argmax(self.q_table[self.__state_to_q_ind(S_)])
                 old_val = self.q_table[q_index][action]
-                old_val += self.learning_rate*(self.discount*greedy_next-old_val)
+                update = self.learning_rate*(R + self.discount*greedy_next-old_val)
+                self.q_table[q_index][action] += update
                 S = S_
+            if self.episodes < 10 or episode == 0 or (episode+1) % (self.episodes//10) == 0:
+                print("Gt for episode {}: {}".format(episode+1,episode_value))
                 
             results[episode] = episode_value
  
@@ -75,5 +81,5 @@ class Q_Learning():
 
 
 if __name__ == "__main__":
-    test = Q_Learning(10,0.9,0.9,0.1)
+    test = Q_Learning(episodes=1000,lr=0.1,discount=0.2,epsilon=0.5)
     print(test.Q_learning())
