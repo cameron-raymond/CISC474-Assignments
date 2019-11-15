@@ -1,9 +1,14 @@
 
 
+import numpy as np
 UP = 0
 RIGHT = 1
 DOWN = 2
 LEFT = 3
+UP_LEFT = 4
+UP_RIGHT = 5
+DOWN_RIGHT = 6
+DOWN_LEFT = 7
 
 class WindyGridWorld(object):
     """Create an environment of a Grid World
@@ -11,12 +16,13 @@ class WindyGridWorld(object):
     """
 
     def __init__(self, shape=(7, 10),  start=(3, 0), terminal=(3, 7),
-                    wind=[0, 0, 0, 1, 1, 1, 2, 2, 1, 0]):
+                    wind=[0, 0, 0, 1, 1, 1, 2, 2, 1, 0], stochastic_wind=False):
         self.shape = shape
         self.R = {}
         self.terminal = terminal
         self.state = start
-        self.wind = [0, 0, 0, 0,0,0,0,0,0, 0]
+        self.wind = wind # [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        self.stochastic_wind = stochastic_wind
 
         for i in range(self.shape[0]):
             for j in range(self.shape[1]):
@@ -27,15 +33,37 @@ class WindyGridWorld(object):
         return self.state
 
     def act(self, action):
-        if action==UP:
+        if action == UP:
             self.act_up()
-        if action==RIGHT:
+        if action == RIGHT:
             self.act_right()
-        if action==LEFT:
+        if action == LEFT:
             self.act_left()
-        if action==DOWN:
+        if action == DOWN:
             self.act_down()
-        self.act_up(step=self.wind[self.state[1]])
+        if action == UP_LEFT:
+            self.act_up()
+            self.act_left()
+        if action == UP_RIGHT:
+            self.act_up()
+            self.act_right()
+        if action == DOWN_RIGHT:
+            self.act_down()
+            self.act_right()
+        if action == DOWN_LEFT:
+            self.act_down()
+            self.act_left()
+
+        if self.stochastic_wind:
+            this_wind = np.random.choice(np.array([
+                self.wind[self.state[1]] - 1,
+                self.wind[self.state[1]],
+                self.wind[self.state[1]] + 1,
+            ]))
+        else:
+            this_wind = self.wind[self.state[1]]
+        self.act_up(this_wind)
+        
         return (self.state, self.state==self.terminal, self.R[self.state])
 
     def act_up(self, step=1):
