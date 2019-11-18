@@ -3,6 +3,10 @@ UP = 0
 RIGHT = 1
 DOWN = 2
 LEFT = 3
+UP_LEFT = 4	
+UP_RIGHT = 5	
+DOWN_RIGHT = 6	
+DOWN_LEFT = 7
 
 class WindyGridWorld(object):
     """Create an environment of a Grid World
@@ -34,8 +38,22 @@ class WindyGridWorld(object):
             self.act_right()
         elif action == LEFT:
             self.act_left()
-        else:
+        elif action == DOWN:
             self.act_down()
+        elif action == UP_LEFT:
+            self.act_up()
+            self.act_left()
+        elif action == UP_RIGHT:
+            self.act_up()
+            self.act_right()
+        elif action == DOWN_RIGHT:
+            self.act_down()
+            self.act_right()
+        elif action == DOWN_LEFT:
+            self.act_down()
+            self.act_left()
+        else:
+            raise Exception("{} is an invalid action.".format(action))
 
         if self.stochastic_wind:
             this_wind = np.random.choice(np.array([
@@ -50,7 +68,7 @@ class WindyGridWorld(object):
         return (self.state, self.state==self.terminal, self.R[self.state])
 
     def act_up(self, step=1):
-        self.state = (max(self.state[0]-step, 0), self.state[1])
+        self.state = (min(max(self.state[0]-step, 0), self.shape[0]-1), self.state[1])
 
     def act_down(self, step=1):
         self.state = (min(self.state[0]+step, self.shape[0]-1), self.state[1])

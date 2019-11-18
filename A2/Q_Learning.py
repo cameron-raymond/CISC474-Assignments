@@ -4,7 +4,11 @@ from grid_world import WindyGridWorld as env
 import matplotlib.pyplot as plt
 
 class Q_Learning(object):
-    def __init__(self, shape=(7,10), episodes=100, lr=0.9, discount=0.9, epsilon=0.1, actions=4, stochastic_wind=False,):
+    def __init__(self, shape=(7,10), episodes=100, lr=0.9, discount=0.9, epsilon=0.1, king=False,):
+        """ 
+        Possible moves: 
+            UP = 0, RIGHT = 1, DOWN = 2, LEFT = 3, UP and LEFT = 4, UP and RIGHT = 5, DOWN and RIGHT = 6, DOWN and LEFT = 7 
+        """
         self.title          = "Q Learning"
         self.episodes       = episodes
         self.shape          = shape
@@ -12,9 +16,10 @@ class Q_Learning(object):
         self.discount       = discount
         self.epsilon        = epsilon
         self.states         = self.state_to_q_ind(shape)
-        self.q_table        = np.zeros((self.states,actions))
-        self.actions        = np.array([0,1,2,3]) #UP = 0, RIGHT = 1, DOWN = 2, LEFT = 3
-        self.env            = env(shape=shape, stochastic_wind=stochastic_wind)
+        self.possible_moves = 8 if king else 4 
+        self.q_table        = np.zeros((self.states,self.possible_moves))
+        self.actions        = np.array(range(self.possible_moves))  
+        self.env            = env(shape=shape, stochastic_wind=king)
 
     def eps_greedy_policy(self,state):
         """
