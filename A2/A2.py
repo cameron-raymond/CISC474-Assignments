@@ -10,7 +10,6 @@ def epsilon_greedy_policy(Q, state, nA, epsilon):
     probs = np.ones(nA) * epsilon / nA
     best_action = np.argmax(Q[state])
     probs[best_action] += 1.0 - epsilon
-
     return probs
 
 def Q_learning(episodes, lr, discount, epsilon):
@@ -27,9 +26,11 @@ def Q_learning(episodes, lr, discount, epsilon):
     # Links state to action values
     Q = defaultdict(lambda: np.zeros(env.action_space.n))
 
+    print(Q)
     # Points to plot
     # number of episodes
     x = np.arange(episodes)
+
     # Number of steps
     y = np.zeros(episodes)
 

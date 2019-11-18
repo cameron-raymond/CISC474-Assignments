@@ -15,13 +15,14 @@ class WindyGridWorld(object):
     R = dict {(s):reward} - reward matrix, reward which obtained on state s
     """
 
-    def __init__(self, shape=(7, 10),  start=(3, 0), terminal=(3, 7),
+    def __init__(self, shape=(7, 10),  start=(0, 0), terminal=(1,1),
                     wind=[0, 0, 0, 1, 1, 1, 2, 2, 1, 0], stochastic_wind=False):
         self.shape = shape
         self.R = {}
         self.terminal = terminal
         self.state = start
-        self.wind = wind # [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        self.start_state = start
+        self.wind = np.zeros(shape[1]) # wind # [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
         self.stochastic_wind = stochastic_wind
 
         for i in range(self.shape[0]):
@@ -29,7 +30,7 @@ class WindyGridWorld(object):
                 self.R[(i, j)] = 0 if (i, j)==self.terminal else -1.0
     
     def reset(self):
-        self.state = (3, 0)
+        self.state = self.start_state
         return self.state
 
     def act(self, action):
@@ -63,7 +64,7 @@ class WindyGridWorld(object):
         else:
             this_wind = self.wind[self.state[1]]
         self.act_up(this_wind)
-        
+
         return (self.state, self.state==self.terminal, self.R[self.state])
 
     def act_up(self, step=1):
