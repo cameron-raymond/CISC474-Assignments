@@ -3,19 +3,18 @@ import math
 from grid_world import WindyGridWorld as env
 import matplotlib.pyplot as plt
 
-class Q_Learning():
-    def __init__(self, shape=(7,10), episodes=100, lr=0.9, discount=0.9, epsilon=0.1, actions=4, stochastic_wind=False):
+class Q_Learning(object):
+    def __init__(self, shape=(7,10), episodes=100, lr=0.9, discount=0.9, epsilon=0.1, actions=4, stochastic_wind=False,):
+        self.title          = "Q Learning"
         self.episodes       = episodes
         self.shape          = shape
         self.learning_rate  = lr
         self.discount       = discount
         self.epsilon        = epsilon
-        self.states         = self.__state_to_q_ind(shape)
+        self.states         = self.state_to_q_ind(shape)
         self.q_table        = np.zeros((self.states,actions))
         self.actions        = np.array([0,1,2,3]) #UP = 0, RIGHT = 1, DOWN = 2, LEFT = 3
         self.env            = env(shape=shape, stochastic_wind=stochastic_wind)
-        self.terminal       = self.env.terminal # note take out so our code doesn't look jank
-
 
     def eps_greedy_policy(self,state):
         """
@@ -23,107 +22,80 @@ class Q_Learning():
             Returns a policy pi where pi(argmax,state) = 1-epsilon + epsilon/|num_possible|
             and pi(otheAction,state) = epsilon/|num_possible|
         """
-        q_index = self.__state_to_q_ind(state)
+        q_index = self.state_to_q_ind(state)
         num_possible = len(self.actions)
-        
         policy = np.ones(num_possible) * (self.epsilon / num_possible)
         best_action = np.argmax(self.q_table[q_index])
         policy[best_action] += 1.0 - self.epsilon
         if len(set(self.q_table[q_index])) == 1:
-            # print("all choices equal => random walk")
             # If all the elements are equal, random walk
             policy = np.ones(num_possible) / num_possible
-        # print(policy)
-
-
         return policy
 
+    def get_action(self,state):
+        policy = self.eps_greedy_policy(state)
+        action = np.random.choice(np.arange(len(policy)),p=policy)
+        return action
 
-    def __state_to_q_ind(self,state):
+    def state_to_q_ind(self,state):
         """
             Takes in the state (row,col) and maps it an index in the q-table
         """
-        n = self.shape[1] # num possible actions
+        n = self.shape[1] # each row in the grid has n possible columns that it could be in
         return int((state[0]*n)+state[1])
-    
-    def print_state(self,state):      
-        for row in range(self.shape[0]):
-            for col in range(self.shape[1]):
-                q_table_ind = self.__state_to_q_ind((row,col))
-                q_table_max = max(self.q_table[q_table_ind])
-                q_table_min = min(self.q_table[q_table_ind])
-                if (row,col) == state:
-                    print("X",end='\t|')
-                elif (row,col) == self.env.terminal:
-                    print("T",end='\t|')
-                else:
-                    print("o",end='\t|')
-            print("\n")
-        print("---")
 
-    def print_q_table(self):
-        print(*["S","U","R","D","L"],sep="\t|")
-        for ind,state in enumerate(self.q_table):
-            to_tuple = self.back_from_q_ind(ind)
-            print(to_tuple,end='\t|')
-            for sorry in state:
-                print("{:0.2f}\t|".format(sorry),end="")
-            print('\n')
-
-    def back_from_q_ind(self,state):
-        """
-            This one's for hugh and leonard...
-        """
-        n = self.shape[1] # num possible actions
-        return math.floor(state/n),state%n
-
-    def Q_learning(self):
-        results = np.zeros(self.episodes) # Tracking results
-        step_res = np.zeros(self.episodes)
-
+    def train(self):
+        episode_steps = np.zeros(self.episodes)# Tracking results
         for episode in range(self.episodes):
-            S = self.env.reset() # init S
+            state = self.env.reset() # init S
             done = False
-            episode_value = 0
             steps = 0
-            while not done:
-                # self.print_state(S)
-                # self.print_q_table()
-                policy = self.eps_greedy_policy(S)
-                # Select epsilon greedy action and act
-                action = np.random.choice(
-                    np.arange(len(policy)),
-                    p=policy
-                )
-                S_, done, R = self.env.act(action)
-                assert(R != 0 or S_ == self.env.terminal)
-                q_index = self.__state_to_q_ind(S)
+            while not done and steps < 10000:
+                action = self.get_action(state)
+                next_state, done, reward = self.env.act(action)
+                q_index = self.state_to_q_ind(state)
                 # Update Q table
-                S_q_ind = self.__state_to_q_ind(S_)
+                S_q_ind = self.state_to_q_ind(next_state)
                 greedy_next = np.max(self.q_table[S_q_ind])
                 old_val = self.q_table[q_index][action]
-                # print("Q(S,A) = {:0.2f} + {}[{}+{}*{:0.2f}-{:0.2f}]".format(old_val,self.learning_rate,R,self.discount,greedy_next,old_val))
-                update = self.learning_rate*(R + self.discount*greedy_next-old_val)
+                update = self.learning_rate*(reward + self.discount*greedy_next-old_val)
                 self.q_table[q_index][action] += update
-                S = S_
-
-                episode_value += episode_value*self.discount + R
+                state = next_state
                 steps += 1
-
             if self.episodes < 10 or episode == 0 or (episode+1) % (self.episodes//10) == 0:
-                # print("value of terminal state: {}".format(self.q_table[self.terminal]))
-                print("Gt for episode {}: {}".format(episode+1,episode_value))
-                print("Steps to get to terminal: {}".format(steps))
+                print("    Episode {}\t- Total Steps: {}".format(episode+1,steps))
+            episode_steps[episode] = steps 
+        return episode_steps
 
-            results[episode] = episode_value
-            step_res[episode] = steps
-            # self.print_q_table()
- 
-        return results, step_res
+    def __str__(self):
+        """ 
+            A string representation of the state action tbale
+        """
+        to_tuple = lambda q_index : (math.floor(q_index/self.shape[1]),q_index%self.shape[1]) # converts the Q table index back to the original state tuple
+        q_table = "\t<--- {} Q Table --->\n".format(self.title)
+        q_table += "S\t| U\t| R\t| D\t| L\t|\n"
+        for ind,state in enumerate(self.q_table):
+            s_tuple = to_tuple(ind)
+            state_str  = "({t[0]},{t[1]})\t| {s[0]:0.2f}\t| {s[1]:0.2f}\t| {s[2]:0.2f}\t| {s[3]:0.2f}\t|\n".format(t=s_tuple,s=state)
+            q_table += state_str
+        return q_table
+
+    def plot(self,episode_steps):
+        plt.plot(episode_steps)
+        plt.title('{}: Episodes vs steps'.format(self.title))
+        plt.xlabel('Episodes')
+        plt.ylabel('steps')
+        plt.show()
+
+
 
 
 if __name__ == "__main__":
-    test = Q_Learning(episodes=300,lr=0.1,discount=0.5,epsilon=0.1, stochastic_wind=False)
-    res, step = test.Q_learning()
-    plt.plot(step)
-    plt.show()
+    episodes = 300
+    learning_rate = 0.5
+    discount = 0.9
+    epsilon = 0.05
+    agent = Q_Learning(episodes=episodes,lr=learning_rate,discount=discount,epsilon=epsilon, stochastic_wind=False)
+    episode_steps = agent.train()
+    print(str(agent))
+    
