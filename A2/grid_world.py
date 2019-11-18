@@ -1,14 +1,8 @@
-
-
 import numpy as np
 UP = 0
 RIGHT = 1
 DOWN = 2
 LEFT = 3
-UP_LEFT = 4
-UP_RIGHT = 5
-DOWN_RIGHT = 6
-DOWN_LEFT = 7
 
 class WindyGridWorld(object):
     """Create an environment of a Grid World
@@ -22,7 +16,7 @@ class WindyGridWorld(object):
         self.terminal = terminal
         self.state = start
         self.start_state = start
-        self.wind = wind # np.zeros(shape[1]) #  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        self.wind = wind
         self.stochastic_wind = stochastic_wind
 
         for i in range(self.shape[0]):
@@ -36,24 +30,12 @@ class WindyGridWorld(object):
     def act(self, action):
         if action == UP:
             self.act_up()
-        if action == RIGHT:
+        elif action == RIGHT:
             self.act_right()
-        if action == LEFT:
+        elif action == LEFT:
             self.act_left()
-        if action == DOWN:
+        else:
             self.act_down()
-        if action == UP_LEFT:
-            self.act_up()
-            self.act_left()
-        if action == UP_RIGHT:
-            self.act_up()
-            self.act_right()
-        if action == DOWN_RIGHT:
-            self.act_down()
-            self.act_right()
-        if action == DOWN_LEFT:
-            self.act_down()
-            self.act_left()
 
         if self.stochastic_wind:
             this_wind = np.random.choice(np.array([

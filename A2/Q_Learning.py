@@ -69,7 +69,7 @@ class Q_Learning(object):
 
     def __str__(self):
         """ 
-            A string representation of the state action tbale
+            A string representation of the state action table
         """
         to_tuple = lambda q_index : (math.floor(q_index/self.shape[1]),q_index%self.shape[1]) # converts the Q table index back to the original state tuple
         q_table = "\t<--- {} Q Table --->\n".format(self.title)
@@ -86,16 +86,4 @@ class Q_Learning(object):
         plt.xlabel('Episodes')
         plt.ylabel('steps')
         plt.show()
-
-
-
-
-if __name__ == "__main__":
-    episodes = 300
-    learning_rate = 0.5
-    discount = 0.9
-    epsilon = 0.05
-    agent = Q_Learning(episodes=episodes,lr=learning_rate,discount=discount,epsilon=epsilon, stochastic_wind=False)
-    episode_steps = agent.train()
-    print(str(agent))
     
