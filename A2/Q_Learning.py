@@ -1,9 +1,10 @@
 import numpy as np 
 import math
 from grid_world import WindyGridWorld as env
+import matplotlib.pyplot as plt
 
 class Q_Learning():
-    def __init__(self, shape=(7,10), episodes=100, lr=0.9, discount=0.9, epsilon=0.1, actions=4):
+    def __init__(self, shape=(7,10), episodes=100, lr=0.9, discount=0.9, epsilon=0.1, actions=4, stochastic_wind=False):
         self.episodes       = episodes
         self.shape          = shape
         self.learning_rate  = lr
@@ -12,7 +13,7 @@ class Q_Learning():
         self.states         = self.__state_to_q_ind(shape)
         self.q_table        = np.zeros((self.states,actions))
         self.actions        = np.array([0,1,2,3]) #UP = 0, RIGHT = 1, DOWN = 2, LEFT = 3
-        self.env            = env(shape)
+        self.env            = env(shape=shape, stochastic_wind=stochastic_wind)
         self.terminal       = self.env.terminal # note take out so our code doesn't look jank
 
 
@@ -29,10 +30,10 @@ class Q_Learning():
         best_action = np.argmax(self.q_table[q_index])
         policy[best_action] += 1.0 - self.epsilon
         if len(set(self.q_table[q_index])) == 1:
-            print("all choices equal => random walk")
+            # print("all choices equal => random walk")
             # If all the elements are equal, random walk
             policy = np.ones(num_possible) / num_possible
-        print(policy)
+        # print(policy)
 
 
         return policy
@@ -78,11 +79,13 @@ class Q_Learning():
 
     def Q_learning(self):
         results = np.zeros(self.episodes) # Tracking results
+        step_res = np.zeros(self.episodes)
 
         for episode in range(self.episodes):
             S = self.env.reset() # init S
             done = False
             episode_value = 0
+            steps = 0
             while not done:
                 # self.print_state(S)
                 # self.print_q_table()
@@ -105,17 +108,22 @@ class Q_Learning():
                 S = S_
 
                 episode_value += episode_value*self.discount + R
-            
+                steps += 1
+
             if self.episodes < 10 or episode == 0 or (episode+1) % (self.episodes//10) == 0:
-                print("value of terminal state: {}".format(self.q_table[self.terminal]))
+                # print("value of terminal state: {}".format(self.q_table[self.terminal]))
                 print("Gt for episode {}: {}".format(episode+1,episode_value))
-                
+                print("Steps to get to terminal: {}".format(steps))
+
             results[episode] = episode_value
-            self.print_q_table()
+            step_res[episode] = steps
+            # self.print_q_table()
  
-        return results
+        return results, step_res
 
 
 if __name__ == "__main__":
-    test = Q_Learning(episodes=10,lr=0.1,discount=0.2,epsilon=0)
-    print(test.Q_learning())
+    test = Q_Learning(episodes=300,lr=0.1,discount=0.5,epsilon=0.1, stochastic_wind=False)
+    res, step = test.Q_learning()
+    plt.plot(step)
+    plt.show()
