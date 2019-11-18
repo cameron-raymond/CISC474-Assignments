@@ -9,7 +9,7 @@ class Q_Learning(object):
         Possible moves: 
             UP = 0, RIGHT = 1, DOWN = 2, LEFT = 3, UP and LEFT = 4, UP and RIGHT = 5, DOWN and RIGHT = 6, DOWN and LEFT = 7 
         """
-        self.title          = "Q Learning"
+        self.title          = "Q Learning" if not king else "Q Learning with Kings Move and Stochastic Wind"
         self.episodes       = episodes
         self.shape          = shape
         self.learning_rate  = lr

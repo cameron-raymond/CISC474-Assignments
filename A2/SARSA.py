@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 class SARSA(Q_Learning):
     def __init__(self, shape=(7,10), episodes=100, lr=0.9, discount=0.9, epsilon=0.1, king=False):
         super().__init__(shape=shape, episodes=episodes, lr=lr, discount=discount, epsilon=epsilon, king=king)
-        self.title = "SARSA"
+        self.title = "SARSA" if not king else "SARSA with Kings Move and Stochastic Wind"
     
     def train(self):
         episode_steps = np.zeros(self.episodes)# Tracking results
