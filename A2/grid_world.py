@@ -1,4 +1,5 @@
 import numpy as np
+
 UP = 0
 RIGHT = 1
 DOWN = 2
@@ -9,11 +10,12 @@ DOWN_RIGHT = 6
 DOWN_LEFT = 7
 
 class WindyGridWorld(object):
-    """Create an environment of a Grid World
+    """
+    Create an environment of a Grid World
     R = dict {(s):reward} - reward matrix, reward which obtained on state s
     """
 
-    def __init__(self, shape=(7, 10),  start=(0, 0), terminal=(5,3),
+    def __init__(self, shape=(7, 10),  start=(0, 0), terminal=(5, 3),
                     wind=[0, 0, 0, 1, 1, 1, 2, 2, 1, 0], stochastic_wind=False):
         self.shape = shape
         self.R = {}
@@ -22,16 +24,19 @@ class WindyGridWorld(object):
         self.start_state = start
         self.wind = wind
         self.stochastic_wind = stochastic_wind
-
+        # Rewards for grid
         for i in range(self.shape[0]):
             for j in range(self.shape[1]):
-                self.R[(i, j)] = 0 if (i, j)==self.terminal else -1.0
+                self.R[(i, j)] = 0 if (i, j) == self.terminal else -1.0
     
     def reset(self):
         self.state = self.start_state
         return self.state
 
     def act(self, action):
+        """
+            Moves agent on the grid taking into consideration wind
+        """
         if action == UP:
             self.act_up()
         elif action == RIGHT:
