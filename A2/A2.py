@@ -11,6 +11,7 @@ learning_rate = 0.5
 discount = 0.9
 epsilon = 0.05
 
+
 if __name__ == "__main__":
     # Performing Q-learning with standard environment
     q_agent = Q_Learning(episodes=episodes,lr=learning_rate,discount=discount,epsilon=epsilon,king=False)

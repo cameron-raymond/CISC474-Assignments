@@ -103,5 +103,6 @@ class Q_Learning(object):
         plt.title('{}: Episodes vs steps'.format(self.title))
         plt.xlabel('Episodes')
         plt.ylabel('steps')
+        plt.ylim((0,1000))
         plt.show()
     
