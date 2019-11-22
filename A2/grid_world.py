@@ -15,7 +15,7 @@ class WindyGridWorld(object):
     R = dict {(s):reward} - reward matrix, reward which obtained on state s
     """
 
-    def __init__(self, shape=(7, 10),  start=(0, 0), terminal=(5, 3),
+    def __init__(self, shape=(7, 10),  start=(3, 0), terminal=(3, 7),
                     wind=[0, 0, 0, 1, 1, 1, 2, 2, 1, 0], stochastic_wind=False):
         self.shape = shape
         self.R = {}

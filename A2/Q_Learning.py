@@ -37,9 +37,29 @@ class Q_Learning(object):
             policy = np.ones(num_possible) / num_possible
         return policy
 
+    def greedy_policy(self, state):
+        """
+            Same as epsilon greedy but with no exploring, always take the
+            greedy action
+        """
+        q_index = self.state_to_q_ind(state)
+        num_possible = len(self.actions)
+        policy = np.zeros(num_possible)
+        best_action = np.argmax(self.q_table[q_index])
+        policy[best_action] += 1.0
+        if len(set(self.q_table[q_index])) == 1:
+            # If all the elements are equal, random walk
+            policy = np.ones(num_possible) / num_possible
+        return policy
+
     def get_action(self, state):
         policy = self.eps_greedy_policy(state)
         action = np.random.choice(np.arange(len(policy)), p=policy)
+        return action
+
+    def get_action_greedy(self, state):
+        policy = self.greedy_policy(state)
+        action = np.random.choice(np.arrange(len(policy)), p=policy)
         return action
 
     def state_to_q_ind(self, state):
@@ -81,6 +101,24 @@ class Q_Learning(object):
 
             episode_steps[episode] = steps
         return episode_steps
+
+    def get_optimal_policy(self):
+        """
+            Returns path using optimal policy after training
+        """
+        state = self.env.reset()  # init S
+        done = False
+        steps = 0
+        action_dict = {0: "up", 1: "right", 2: "down", 3: "left",
+                       4: "up left", 5: "up right", 6: "down right", 7: "down left"}
+        while not done and steps < 10000:
+            # Obtain action, reward, and next state
+            action = self.get_action(state)
+            print("Step: {}, state: {}, action: {}".format(steps, state, action_dict[action]))
+            next_state, done, reward = self.env.act(action)
+            state = next_state
+            steps += 1
+        print("Step: {}, finished!".format(steps))
 
     def __str__(self):
         """ 
