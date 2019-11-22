@@ -31,7 +31,7 @@ if __name__ == "__main__":
     print("--- plotting training for Q Learning agent using eligibility trace ---")
     q_agent.plot(episode_steps)
 
-    Performing SARSA with standard environment
+    # Performing SARSA with standard environment
     sarsa_agent = SARSA(episodes=episodes,lr=learning_rate,discount=discount,epsilon=epsilon,king=False)
     print("--- starting training for SARSA agent --- ")
     episode_steps = sarsa_agent.train()
