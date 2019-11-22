@@ -2,6 +2,7 @@ import numpy as np
 import math
 from grid_world import WindyGridWorld as env
 import matplotlib.pyplot as plt
+from matplotlib import colors
 
 class Q_Learning(object):
     def __init__(self, shape=(7, 10), episodes=100, lr=0.9, discount=0.9, epsilon=0.1, king=False, _lambda=0):
@@ -64,7 +65,7 @@ class Q_Learning(object):
 
     def get_action_greedy(self, state):
         policy = self.greedy_policy(state)
-        action = np.random.choice(np.arrange(len(policy)), p=policy)
+        action = np.random.choice(np.arange(len(policy)), p=policy)
         return action
 
     def state_to_q_ind(self, state):
@@ -198,4 +199,45 @@ class Q_Learning(object):
         plt.ylabel('steps')
         plt.ylim((0,1000))
         plt.show()
+
+    def plot_policy(self):
+        """
+
+        """
+        state = self.env.reset()  # init S
+        done = False
+        steps = 0
+        trajectory = [state]
+        while not done and steps < 10000:
+            # Obtain action, reward, and next state
+            action = self.get_action_greedy(state)
+            next_state, done, reward = self.env.act(action)
+            state = next_state
+            steps += 1
+            trajectory.append(state)
+        print("Trajectory: {}".format(trajectory))
+
+        data = np.zeros((7,10))
+        for state in trajectory:
+            data[state] = 1
+        print("{}".format(data))
+
+        # create discrete colormap
+        cmap = colors.ListedColormap(['white', 'blue'])
+        bounds = [0, 0.5, 1]
+        norm = colors.BoundaryNorm(bounds, cmap.N)
+
+        fig, ax = plt.subplots()
+        ax.imshow(data, cmap=cmap, norm=norm)
+
+        plt.title('{}'.format(self.title))
+        # draw gridlines
+        ax.grid(which='major', axis='both', linestyle='-', color='k', linewidth=2)
+        ax.set_xticks(np.arange(-.5, 10, 1))
+        ax.set_yticks(np.arange(-.5, 7, 1))
+        ax.tick_params(labelbottom=False)
+        ax.tick_params(labelleft=False)
+
+        plt.show()
+
     

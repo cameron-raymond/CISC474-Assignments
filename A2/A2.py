@@ -19,8 +19,12 @@ if __name__ == "__main__":
     episode_steps = q_agent.train()
     print("--- optimal policy for Q Learning agent ---")
     q_agent.get_optimal_policy()
+    q_agent.plot_policy()
     print("--- plotting training for Q Learning agent ---")
     q_agent.plot(episode_steps)
+
+
+
 
     # Performing Q-learning with standard environment, using eligibility trace
     q_agent = Q_Learning(episodes=episodes,lr=learning_rate,discount=discount,epsilon=epsilon,king=False, _lambda=0.9)
@@ -28,8 +32,10 @@ if __name__ == "__main__":
     episode_steps = q_agent.train_lambda()
     print("--- optimal policy for Q Learning agent using eligibility trace ---")
     q_agent.get_optimal_policy()
+    q_agent.plot_policy()
     print("--- plotting training for Q Learning agent using eligibility trace ---")
     q_agent.plot(episode_steps)
+
 
     # Performing SARSA with standard environment
     sarsa_agent = SARSA(episodes=episodes,lr=learning_rate,discount=discount,epsilon=epsilon,king=False)
@@ -37,8 +43,10 @@ if __name__ == "__main__":
     episode_steps = sarsa_agent.train()
     print("--- optimal policy for SARSA agent ---")
     sarsa_agent.get_optimal_policy()
+    sarsa_agent.plot_policy()
     print("--- plotting training for SARSA agent ---")
     sarsa_agent.plot(episode_steps)
+
 
     # Performing SARSA with standard environment using eligibility trace
     sarsa_agent = SARSA(episodes=episodes,lr=learning_rate,discount=discount,epsilon=epsilon,king=False, _lambda=0.9)
@@ -46,8 +54,10 @@ if __name__ == "__main__":
     episode_steps = sarsa_agent.train()
     print("--- optimal policy for SARSA agent using eligibility trace ---")
     sarsa_agent.get_optimal_policy()
+    sarsa_agent.plot_policy()
     print("--- plotting training for SARSA agent using eligibility trace ---")
     sarsa_agent.plot(episode_steps)
+
 
     # Performing Q-learning with king's moves and stochastic wind
     q_agent_king = Q_Learning(episodes=episodes,lr=learning_rate,discount=discount,epsilon=epsilon,king=True)
@@ -55,17 +65,21 @@ if __name__ == "__main__":
     episode_steps = q_agent_king.train()
     print("--- optimal policy for Q Learning agent with king's moves ---")
     q_agent_king.get_optimal_policy()
+    q_agent_king.plot_policy()
     print("--- plotting training for Q Learning agent ---")
     q_agent_king.plot(episode_steps)
 
+
     # Performing Q-learning with king's moves and stochastic wind, using eligibility trace
-    q_agent = Q_Learning(episodes=episodes,lr=learning_rate,discount=discount,epsilon=epsilon,king=True, _lambda=0.9)
+    q_agent_king = Q_Learning(episodes=episodes,lr=learning_rate,discount=discount,epsilon=epsilon,king=True, _lambda=0.9)
     print("--- starting training for Q Learning agent with king's moves and eligibility trace --- ")
-    episode_steps = q_agent.train_lambda()
+    episode_steps = q_agent_king.train_lambda()
     print("--- optimal policy for Q Learning agent with king's moves and eligibility trace ---")
-    q_agent.get_optimal_policy()
+    q_agent_king.get_optimal_policy()
+    q_agent_king.plot_policy()
     print("--- plotting training for Q Learning agent with king's moves and eligibility trace ---")
-    q_agent.plot(episode_steps)
+    q_agent_king.plot(episode_steps)
+
 
 
     # Performing SARSA with king's moves and stochastic wind
@@ -74,14 +88,18 @@ if __name__ == "__main__":
     episode_steps = sarsa_agent_king.train()
     print("--- optimal policy for SARSA agent with king's moves ---")
     sarsa_agent_king.get_optimal_policy()
+    sarsa_agent_king.plot_policy()
     print("--- plotting training for SARSA agent with king's moves ---")
     sarsa_agent_king.plot(episode_steps)
 
+
     # Performing SARSA with king's moves and stochastic wind using eligibility trace
-    sarsa_agent = SARSA(episodes=episodes,lr=learning_rate,discount=discount,epsilon=epsilon,king=True, _lambda=0.9)
+    sarsa_agent_king = SARSA(episodes=episodes,lr=learning_rate,discount=discount,epsilon=epsilon,king=True, _lambda=0.9)
     print("--- starting training for SARSA agent with king's moves using eligibility trace --- ")
-    episode_steps = sarsa_agent.train()
+    episode_steps = sarsa_agent_king.train()
     print("--- optimal policy for SARSA agent with king's moves using eligibility trace ---")
-    sarsa_agent.get_optimal_policy()
+    sarsa_agent_king.get_optimal_policy()
+    sarsa_agent_king.plot_policy()
     print("--- plotting training for SARSA with king's moves agent using eligibility trace ---")
-    sarsa_agent.plot(episode_steps)
+    sarsa_agent_king.plot(episode_steps)
+
